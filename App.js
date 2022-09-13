@@ -18,6 +18,7 @@ function App() {
       <Route path="student/:studentId" element={<Student />}/>
       <Route path="listStudents" element={<StudentList/>}/>
       </Routes>
+      
       </Container>
       <Footer/>
       </Router>
