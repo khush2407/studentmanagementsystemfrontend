@@ -1,68 +1,56 @@
+import React, { useEffect, useState } from "react";
+import { Card } from "react-bootstrap";
+import Table from "react-bootstrap/Table";
 import axios from "axios";
-import React, {useState} from "react";
-import { Container, Form, Card, Button } from "react-bootstrap";
+import Button from 'react-bootstrap/Button';
+import {Link} from 'react-router-dom'
+export default function ViewStudents() {
+    const [students, setstudents]=useState([]);
 
-
-export default function Student() {
-
-  const [id, setId] = useState();
-  const [name, setName] = useState();
-  const [address, setAddress] = useState();
-
-  let student = {
-    id : id,
-    name : name,
-    address : address
-  }
-
-  let textChanged = (event) => {
-    if(event.target.name==="id"){
-      setId(event.target.value);
-    } else if(event.target.name==="name"){
-      setName(event.target.value);
-    } else if(event.target.name==="address"){
-      setAddress(event.target.value);
-    }
-  }
-
-  let saveStudent = (event) => {
-    event.preventDefault();
-    axios.post("http://localhost:8080/student", student)
-    .then(response => {
-      if(response.data != null){
-        alert('Record added successfully');        
-      }
+    useEffect(()=>{
+        axios.get("http://localhost:8080/listofstudents")
+        .then(response=>setstudents(response.data))
+        .catch(error=>alert(error));
     })
-    .catch(error => alert(error));
-  }
 
+    let deletestudent=(id,event)=>{
+      event.preventDefault();
+      axios.delete("http://localhost:8080/student/"+id)
+      .then(response=>{alert(response.data)})
+      .catch(error=>alert(error));
+    }
   return (
-    <div  className="my-3">
-    <Container>
-      <Card>
-        <Form onSubmit={saveStudent}>
-        <Card.Header><strong>Add Student Information</strong></Card.Header>          <Card.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Id</Form.Label>
-              <Form.Control name="id" value={id} type="text" placeholder="Enter id" onChange={textChanged}/>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control name="name" value={name} type="text" placeholder="Enter name" onChange={textChanged} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Address</Form.Label>
-              <Form.Control name="address" value={address} type="text" placeholder="Enter address" onChange={textChanged} />
-            </Form.Group>
-          </Card.Body>
-          <Card.Footer>
-          <Button variant="primary" type="submit">
-            Submit
-          </Button>
-          </Card.Footer>
-        </Form>
-      </Card>
-    </Container>
-    </div>
+    <Card className="my-4">
+      <Card.Header>List Of Student Information</Card.Header>
+      <div>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Student Address</th>
+              <th>Edit/Delete Student</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+                students.map((student)=>
+            <tr key={student.id}>
+              <td>{student.id}</td>
+              <td>{student.name}</td>
+              <td>{student.address}</td>
+              <td>
+               <Link to={"/updateStudent/"+student.id}>
+              <Button variant="primary">Edit</Button></Link> {' '}
+              <Button variant="danger" onClick={deletestudent.bind(this,student.id)}>Delete</Button>{' '}
+              </td>
+            </tr>
+            )
+            }
+          </tbody>
+        </Table>
+      </div>
+      <Card.Footer>This is the Student Information Page</Card.Footer>
+    </Card>
   );
 }
